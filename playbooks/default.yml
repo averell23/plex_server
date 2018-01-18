@@ -1,0 +1,6 @@
+- hosts: pserver
+  become: yes
+  roles:
+  - harden
+  - plex
+  - postfix_relay

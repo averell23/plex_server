@@ -1,0 +1,44 @@
+---
+- name: Install Plex Media Server
+  apt:
+    deb: https://downloads.plex.tv/plex-media-server/1.10.1.4602-f54242b6b/plexmediaserver_1.10.1.4602-f54242b6b_amd64.deb
+
+# Plex does not allow changing it's listening port.
+# Only way to change it would be to set up internal port forwarding...
+- name: Allow plex connections
+  ufw:
+    rule: allow
+    proto: tcp
+    port: 32400
+
+- name: Ensure plex is running
+  service:
+    name: plexmediaserver
+    state: started
+    enabled: true
+
+- name: Make storage directory mount point
+  file:
+    name: /storagebox
+    state: directory
+
+- name: Install cifs
+  apt:
+    name: cifs-utils
+    state: present
+
+- name: Storage credentials
+  template:
+    src: storage-credentials.txt.j2
+    dest: /etc/storage-credentials.txt
+    owner: root
+    group: root
+    mode: 0600
+
+- name: Mount storage box
+  mount:
+    path: /storagebox
+    src: "//{{plex_storage_userid}}.your-storagebox.de/backup"
+    fstype: cifs
+    opts: "iocharset=utf8,rw,credentials=/etc/storage-credentials.txt,uid=plex,gid=plex,file_mode=0660,dir_mode=0770"
+    state: mounted

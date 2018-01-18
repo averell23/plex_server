@@ -1,0 +1,9 @@
+---
+- name: restart postfix
+  service:
+    name: postfix
+    enabled: true
+    state: restarted
+
+- name: newaliases
+  shell: newaliases

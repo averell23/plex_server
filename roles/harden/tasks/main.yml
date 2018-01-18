@@ -1,0 +1,111 @@
+---
+- name: Update system
+  apt:
+    update_cache: yes
+    upgrade: yes
+
+- name: Create admin user group
+  group:
+    name: "{{harden_admin_user}}"
+
+- name: Create admin user
+  user:
+    name: "{{harden_admin_user}}"
+    group: "{{harden_admin_user}}"
+    groups: sudo
+    shell: /bin/bash
+
+- name: Install sudoers file
+  template:
+    src: sudoers.j2
+    dest: /etc/sudoers
+    owner: root
+    group: root
+    mode: 0440
+
+- name: Create ssh config dir
+  file:
+    path: "/home/{{harden_admin_user}}/.ssh"
+    owner: "{{harden_admin_user}}"
+    group: "{{harden_admin_user}}"
+    state: directory
+    mode: 0755
+
+- name: Put authorized keys for admin user
+  lineinfile:
+    line: "{{harden_authorized_key}}"
+    path: "/home/{{harden_admin_user}}/.ssh/authorized_keys"
+    owner: "{{harden_admin_user}}"
+    group: "{{harden_admin_user}}"
+    mode: 0644
+
+- name: Put hardened sshd_config
+  template:
+    src: sshd_config.j2
+    dest: /etc/ssh/sshd_config
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - disable firewall
+    - reload sshd
+
+- name: Install ufw
+  apt:
+    name: ufw
+    state: present
+
+# Force ssh reload before configuring the firewall
+- meta: flush_handlers
+
+- name: Allow ssh connections
+  ufw:
+    rule: allow
+    proto: tcp
+    port: "{{harden_ssh_port}}"
+
+- name: Enable firewall
+  ufw:
+    state: enabled
+    policy: deny
+
+- name: Install unattended updates
+  apt:
+    name: unattended-upgrades
+    state: present
+
+- name: Install unattended-upgrades config
+  template:
+    src: 50unattended-upgrades.j2
+    dest: /etc/apt/apt.conf.d/50unattended-upgrades
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Install auto-upgrades config
+  template:
+    src: 20auto-upgrades.j2
+    dest: /etc/apt/apt.conf.d/20auto-upgrades
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Install fail2ban
+  apt:
+    name: fail2ban
+    state: present
+
+- name: Put fail2ban config
+  template:
+    src: jail.local.j2
+    dest: /etc/fail2ban/jail.local
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart fail2ban
+
+- name: Enable fail2ban
+  service:
+    name: fail2ban
+    enabled: true
+    state: started

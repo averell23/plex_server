@@ -1,0 +1,11 @@
+---
+- name: disable firewall
+  ufw:
+    state: disabled
+
+
+- name: reload sshd
+  service: name=sshd state=reloaded
+
+- name: restart fail2ban
+  service: name=fail2ban state=restarted

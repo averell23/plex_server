@@ -1,0 +1,33 @@
+---
+- name: Install postfix
+  apt:
+    name: postfix
+    state: present
+  notify: restart postfix
+
+- name: Install main.cf
+  template:
+    src: main.cf.j2
+    dest: /etc/postfix/main.cf
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart postfix
+
+- name: Set mailname
+  copy:
+    content: "{{postfix_relay_maildomain}}"
+    dest: /etc/mailname
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart postfix
+
+- name: Set postfix aliases
+  lineinfile:
+    line: "{{item}}"
+    path: /etc/aliases
+  items:
+    - "postmaster: root"
+    - "root: {{postfix_relay_forward_mail}}"
+  notify: newaliases
