@@ -9,6 +9,11 @@ base system.
 
 ## Warning
 
+The hardening sets up a firewall and may change your ssh port.
+It also disables password logins.
+
+**This may completely lock out remote access to your system.**
+
 This is not a high security setup. The Plex server itself ain't 
 exactly hardened, the content list is also accessible by plex.tv
 and mounting CIFS/Samba shares over the internet is not the safest
