@@ -38,7 +38,7 @@
 - name: Mount storage box
   mount:
     path: /storagebox
-    src: "//{{plex_storage_userid}}.your-storagebox.de/backup"
+    src: "{{plex_storage_uri}}"
     fstype: cifs
     opts: "iocharset=utf8,rw,credentials=/etc/storage-credentials.txt,uid=plex,gid=plex,file_mode=0660,dir_mode=0770"
     state: mounted
