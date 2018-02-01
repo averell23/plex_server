@@ -4,6 +4,25 @@
     update_cache: yes
     upgrade: yes
 
+- hostname:
+    name: "{{harden_hostname}}"
+
+- name: Install hostname file
+  copy:
+    dest: /etc/hostname
+    content: "{{harden_hostname}}"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Install hosts file
+  template:
+    src: hosts.j2
+    dest: /etc/hosts
+    owner: root
+    group: root
+    mode: 0644
+
 - name: Create admin user group
   group:
     name: "{{harden_admin_user}}"
