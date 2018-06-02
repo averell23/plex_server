@@ -1,7 +1,7 @@
 ---
 - name: Install Plex Media Server
   apt:
-    deb: https://downloads.plex.tv/plex-media-server/1.10.1.4602-f54242b6b/plexmediaserver_1.10.1.4602-f54242b6b_amd64.deb
+    deb: https://downloads.plex.tv/plex-media-server/1.13.0.5023-31d3c0c65/plexmediaserver_1.13.0.5023-31d3c0c65_amd64.deb
 
 # Plex does not allow changing it's listening port.
 # Only way to change it would be to set up internal port forwarding...
