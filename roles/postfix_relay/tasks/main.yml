@@ -27,7 +27,7 @@
   lineinfile:
     line: "{{item}}"
     path: /etc/aliases
-  items:
+  with_items:
     - "postmaster: root"
     - "root: {{postfix_relay_forward_mail}}"
   notify: newaliases
